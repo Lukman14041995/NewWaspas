@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Http\Controllers\NormalisasiController;
 use App\Models\Kriteria;
 use App\Models\Alternatif;
@@ -16,8 +17,19 @@ class ResultController extends Controller
         $this->normalisasiController = $normalisasiController;
     }
 
-    public function index(){
-        $normalisasiValues = $this->normalisasiController->index()->getData()['normalisasiTable'];
+    public function index()
+    {
+        // Mengambil data dari NormalisasiController
+        $normalisasiResponse = $this->normalisasiController->index()->getData();
+
+        // Memastikan bahwa 'normalisasiTable' ada dalam respons
+        if (isset($normalisasiResponse['normalisasiTable'])) {
+            $normalisasiValues = $normalisasiResponse['normalisasiTable'];
+        } else {
+            // Jika 'normalisasiTable' tidak ada, inisialisasi dengan array kosong
+            $normalisasiValues = [];
+        }
+
         $kriteria = Kriteria::all();
 
         $waspasScores = [];
@@ -33,7 +45,7 @@ class ResultController extends Controller
             }
 
             $score = 0.5 * $weightedSum + 0.5 * $weightedProduct;
-        $waspasScores[$idAlternatif] = number_format($score, 3);
+            $waspasScores[$idAlternatif] = number_format($score, 3);
         }
 
         arsort($waspasScores);
